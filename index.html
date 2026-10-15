@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoTour — Interactive Photography Learning Simulator</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Three.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Fixed Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand-logo" onclick="switchSection('home')">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="m14.31 8 5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16 3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"></path>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>PhotoTour</h1>
+        <span>Pro Simulator</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <a class="nav-item active" data-section="home" onclick="switchSection('home')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Home</span>
+      </a>
+      <a class="nav-item" data-section="simulator" onclick="switchSection('simulator')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+        <span>Camera Sim</span>
+      </a>
+      <a class="nav-item" data-section="composition" onclick="switchSection('composition')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <span>3D Lab</span>
+      </a>
+      <a class="nav-item" data-section="challenges" onclick="switchSection('challenges')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <span>Challenges</span>
+      </a>
+      <a class="nav-item" data-section="lenses" onclick="switchSection('lenses')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <span>Lens Explorer</span>
+      </a>
+      <a class="nav-item" data-section="progress" onclick="switchSection('progress')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>My Progress</span>
+      </a>
+      <a class="nav-item" data-section="cheatsheets" onclick="switchSection('cheatsheets')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Cheat Sheets</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-level-row">
+        <span class="user-rank" id="sidebarRankLabel">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Amateur
+        </span>
+        <span class="user-xp" id="sidebarXpLabel">240 XP</span>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="sidebarXpBar" style="width: 35%;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-wrapper">
+    <!-- Top Action Bar -->
+    <header class="top-bar">
+      <div class="page-title-badge">
+        <span id="breadcrumbSection">PhotoTour</span>
+        <span>/</span>
+        <strong id="activeSectionTitle">Home Workspace</strong>
+      </div>
+      <div class="top-actions">
+        <div class="time-tracker" title="Active practice time">
+          <span class="pulse-dot"></span>
+          <span id="sessionTimer">00:00:00</span>
+        </div>
+        <button class="btn-quick-action" onclick="switchSection('simulator')">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+          Quick Camera
+        </button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- SECTION 1: HOME -->
+      <section id="section-home" class="section-view active">
+        <div class="hero-banner">
+          <div class="hero-content">
+            <span class="badge badge-gold" style="margin-bottom: 12px;">Interactive Photography Lab</span>
+            <h1>Master Light, Depth & Optics <span class="gold-highlight">By Doing</span></h1>
+            <p>An interactive, full-fidelity simulator built for photographers. Learn the exposure triangle, craft cinematic depth of field, explore 3D composition, and test your skills with guided challenges.</p>
+            <div class="hero-ctas">
+              <button class="btn btn-gold" onclick="switchSection('simulator')">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Launch Simulator
+              </button>
+              <button class="btn btn-blue" onclick="switchSection('composition')">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                3D Composition Lab
+              </button>
+              <button class="btn btn-outline" onclick="switchSection('challenges')">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+                Practice Challenges
+              </button>
+            </div>
+            <div class="stats-row">
+              <div class="stat-box">
+                <div class="stat-val">12</div>
+                <div class="stat-lbl">Simulated Scenes</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val">10</div>
+                <div class="stat-lbl">Target Challenges</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val">7</div>
+                <div class="stat-lbl">Prime & Zoom Lenses</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val">8</div>
+                <div class="stat-lbl">Pro Cheat Sheets</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="shutter-hero-visual">
+            <div class="shutter-svg-wrapper" id="heroShutterSvg" onclick="playShutterAnimation()">
+              <div class="shutter-outer-ring">
+                <svg viewBox="0 0 200 200" width="200" height="200">
+                  <defs>
+                    <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2a2a3e" />
+                      <stop offset="100%" stop-color="#12121a" />
+                    </linearGradient>
+                  </defs>
+                  <!-- 8 Aperture Blades -->
+                  <path class="shutter-blade shutter-blade-1" d="M100 100 L170 30 A100 100 0 0 1 190 70 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-2" d="M100 100 L190 70 A100 100 0 0 1 190 130 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-3" d="M100 100 L190 130 A100 100 0 0 1 150 185 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-4" d="M100 100 L150 185 A100 100 0 0 1 90 198 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-5" d="M100 100 L90 198 A100 100 0 0 1 30 165 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-6" d="M100 100 L30 165 A100 100 0 0 1 10 105 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-7" d="M100 100 L10 105 A100 100 0 0 1 45 40 Z" fill="url(#bladeGrad)" />
+                  <path class="shutter-blade shutter-blade-8" d="M100 100 L45 40 A100 100 0 0 1 110 5 Z" fill="url(#bladeGrad)" />
+                </svg>
+                <div class="shutter-center-core">
+                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="#fff" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+              </div>
+            </div>
+            <span class="shutter-hint">Click the aperture shutter to test shutter sound</span>
+          </div>
+        </div>
+
+        <!-- Interactive Exposure Triangle Feature on Home -->
+        <div class="triangle-interactive-card">
+          <div>
+            <svg class="triangle-svg-canvas" viewBox="0 0 340 300" id="homeTriangleSvg">
+              <!-- Background Triangle -->
+              <polygon points="170,25 25,270 315,270" fill="rgba(26, 26, 38, 0.6)" stroke="rgba(255,255,255,0.15)" stroke-width="2"></polygon>
+              
+              <!-- Inner Guide Lines -->
+              <line x1="170" y1="25" x2="170" y2="270" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+              <line x1="25" y1="270" x2="242" y2="147" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+              <line x1="315" y1="270" x2="98" y2="147" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+
+              <!-- Aperture Vertex (Top) -->
+              <g class="triangle-vertex" onclick="highlightTriangleVertex('aperture')">
+                <circle cx="170" cy="25" r="18" fill="#1a1a26" stroke="#e8a030" stroke-width="2"></circle>
+                <text x="170" y="30" fill="#e8a030" font-size="11" font-weight="700" text-anchor="middle" font-family="'JetBrains Mono', monospace">f/</text>
+                <text x="170" y="10" fill="#f0f0f8" font-size="12" font-weight="600" text-anchor="middle">APERTURE</text>
+              </g>
+
+              <!-- Shutter Speed Vertex (Bottom Left) -->
+              <g class="triangle-vertex" onclick="highlightTriangleVertex('shutter')">
+                <circle cx="25" cy="270" r="18" fill="#1a1a26" stroke="#4a9eff" stroke-width="2"></circle>
+                <text x="25" y="274" fill="#4a9eff" font-size="11" font-weight="700" text-anchor="middle" font-family="'JetBrains Mono', monospace">SEC</text>
+                <text x="35" y="295" fill="#f0f0f8" font-size="12" font-weight="600" text-anchor="middle">SHUTTER</text>
+              </g>
+
+              <!-- ISO Vertex (Bottom Right) -->
+              <g class="triangle-vertex" onclick="highlightTriangleVertex('iso')">
+                <circle cx="315" cy="270" r="18" fill="#1a1a26" stroke="#4ae880" stroke-width="2"></circle>
+                <text x="315" y="274" fill="#4ae880" font-size="10" font-weight="700" text-anchor="middle" font-family="'JetBrains Mono', monospace">ISO</text>
+                <text x="305" y="295" fill="#f0f0f8" font-size="12" font-weight="600" text-anchor="middle">SENSITIVITY</text>
+              </g>
+
+              <!-- Draggable / Reactive Exposure Core Indicator -->
+              <circle id="triangleExposureIndicator" cx="170" cy="188" r="12" fill="#e8a030" filter="drop-shadow(0 0 10px #e8a030)">
+                <animate attributeName="r" values="10;13;10" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <text x="170" y="192" fill="#000" font-size="8" font-weight="800" text-anchor="middle">EV</text>
+            </svg>
+          </div>
+
+          <div class="triangle-explainer">
+            <span class="badge badge-gold" style="margin-bottom: 8px;">Core Foundation</span>
+            <h3 id="triangleTitle">The Exposure Triangle</h3>
+            <p id="triangleDesc">Exposure is the delicate optical balance of three interconnected physical pillars. Changing one parameter requires balancing another to maintain optimal light while shaping artistic intent.</p>
+            
+            <div class="triangle-effects-list">
+              <div class="triangle-effect-item" id="effectAperture">
+                <div>
+                  <strong>Aperture (f-stop) &rarr; Depth of Field</strong>
+                  <span>Controls the physical diameter of the lens diaphragm. Wide apertures (f/1.4) create creamy background bokeh; narrow apertures (f/16) render foreground to background in crisp focus.</span>
+                </div>
+              </div>
+              <div class="triangle-effect-item blue" id="effectShutter">
+                <div>
+                  <strong>Shutter Speed &rarr; Motion & Time</strong>
+                  <span>Controls how long the physical shutter curtains expose the sensor. Fast speeds (1/2000s) freeze hummingbirds; slow speeds (2s) paint silky water and neon light trails.</span>
+                </div>
+              </div>
+              <div class="triangle-effect-item green" id="effectIso">
+                <div>
+                  <strong>ISO &rarr; Digital Gain & Noise Grain</strong>
+                  <span>Amplifies the electrical signal from sensor pixels. Low ISO (100) produces ultra-clean fidelity; high ISO (6400+) captures dim environments at the expense of grain.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Feature Cards Grid -->
+        <div class="features-grid">
+          <div class="feature-card" onclick="switchSection('simulator')">
+            <div>
+              <div class="feature-card-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+              </div>
+              <h3>Full Camera Simulator</h3>
+              <p>Experience genuine camera physics with 12 dynamic procedural scenes, real-time depth-of-field Gaussian blurs, shutter motion blur, ISO sensor grain, and live luminance histograms.</p>
+            </div>
+            <div class="feature-card-action">
+              <span>Open Simulator</span> &rarr;
+            </div>
+          </div>
+
+          <div class="feature-card card-blue" onclick="switchSection('composition')">
+            <div>
+              <div class="feature-card-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline></svg>
+              </div>
+              <h3>3D Composition Studio</h3>
+              <p>Manipulate camera angles, distance, height, and focal lengths in an interactive 3D studio. Learn 12 golden composition techniques with live viewfinder projection overlays.</p>
+            </div>
+            <div class="feature-card-action" style="color: var(--accent-blue);">
+              <span>Explore 3D Lab</span> &rarr;
+            </div>
+          </div>
+
+          <div class="feature-card card-green" onclick="switchSection('challenges')">
+            <div>
+              <div class="feature-card-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+              </div>
+              <h3>Targeted Practice</h3>
+              <p>10 calibrated hands-on missions: freezing fast sports cars, crafting dreamy portraits, long exposure light trails, silky waterfalls, and balancing night noise. Earn stars and rank up!</p>
+            </div>
+            <div class="feature-card-action" style="color: var(--accent-green);">
+              <span>Start Challenges</span> &rarr;
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: CAMERA SIMULATOR -->
+      <section id="section-simulator" class="section-view">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+          <div>
+            <h2 class="section-header">Interactive Camera Simulator</h2>
+            <p class="section-subhead" style="margin-bottom: 0;">Adjust physical optics, sensor sensitivity, and exposure time to see live photographic results.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline" style="padding: 7px 14px; font-size: 0.8rem;" onclick="resetSimulatorDefaults()">
+              Reset Settings
+            </button>
+          </div>
+        </div>
+
+        <div class="simulator-workspace">
+          <!-- Left Column: Camera Controls -->
+          <div class="panel-card">
+            <div class="panel-title">
+              <span>Optics & Exposure</span>
+              <span class="badge badge-gold">Manual (M)</span>
+            </div>
+
+            <!-- ISO Control -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  ISO Sensitivity
+                  <button class="control-info-btn" title="Sensor sensitivity to light. Higher ISO allows shooting in dark places but adds grainy digital noise.">?</button>
+                </label>
+                <span class="control-value-badge" id="isoValBadge">ISO 400</span>
+              </div>
+              <div class="chip-grid">
+                <button class="chip-btn" data-iso="100" onclick="setIso(100)">100</button>
+                <button class="chip-btn" data-iso="200" onclick="setIso(200)">200</button>
+                <button class="chip-btn active" data-iso="400" onclick="setIso(400)">400</button>
+                <button class="chip-btn" data-iso="800" onclick="setIso(800)">800</button>
+                <button class="chip-btn" data-iso="1600" onclick="setIso(1600)">1600</button>
+                <button class="chip-btn" data-iso="3200" onclick="setIso(3200)">3200</button>
+                <button class="chip-btn" data-iso="6400" onclick="setIso(6400)">6400</button>
+                <button class="chip-btn" data-iso="12800" onclick="setIso(12800)">12800</button>
+              </div>
+              <div class="control-hint">
+                <span>Clean Image</span>
+                <span id="isoNoiseLabel" style="color: var(--accent-gold);">Low Noise</span>
+                <span>Heavy Grain</span>
+              </div>
+            </div>
+
+            <!-- Shutter Speed Control -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  Shutter Speed
+                  <button class="control-info-btn" title="How long the sensor is exposed to light. Fast speeds freeze action; slow speeds blur motion.">?</button>
+                </label>
+                <span class="control-value-badge" id="shutterValBadge">1/125s</span>
+              </div>
+              <input type="range" class="styled-range" id="shutterSlider" min="0" max="16" step="1" value="7" oninput="onShutterSlider(this.value)">
+              <div class="control-hint">
+                <span>1/4000s (Freeze)</span>
+                <span id="shutterEffectLabel" style="color: var(--accent-blue);">Action Sharp</span>
+                <span>30" (Trails)</span>
+              </div>
+            </div>
+
+            <!-- Aperture Control -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  Aperture (f-stop)
+                  <button class="control-info-btn" title="Diameter of the lens opening. Low f-numbers create blurry backgrounds (bokeh); high f-numbers make everything sharp.">?</button>
+                </label>
+                <span class="control-value-badge" id="apertureValBadge">f/4.0</span>
+              </div>
+              <div class="chip-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <button class="chip-btn" data-aperture="1.4" onclick="setAperture(1.4)">f/1.4</button>
+                <button class="chip-btn" data-aperture="2" onclick="setAperture(2)">f/2.0</button>
+                <button class="chip-btn" data-aperture="2.8" onclick="setAperture(2.8)">f/2.8</button>
+                <button class="chip-btn active" data-aperture="4" onclick="setAperture(4)">f/4.0</button>
+                <button class="chip-btn" data-aperture="5.6" onclick="setAperture(5.6)">f/5.6</button>
+                <button class="chip-btn" data-aperture="8" onclick="setAperture(8)">f/8.0</button>
+                <button class="chip-btn" data-aperture="11" onclick="setAperture(11)">f/11</button>
+                <button class="chip-btn" data-aperture="16" onclick="setAperture(16)">f/16</button>
+                <button class="chip-btn" data-aperture="22" onclick="setAperture(22)">f/22</button>
+              </div>
+              <!-- DoF Visualization Bar -->
+              <div class="dof-bar-card">
+                <div class="dof-bar-header">
+                  <span>Depth of Field Span</span>
+                  <span id="dofSpanText" style="font-weight: 600; color: var(--accent-gold);">0.8m - 6.5m</span>
+                </div>
+                <div class="dof-track">
+                  <div class="dof-sharp-range" id="dofSharpZone" style="left: 20%; width: 35%;"></div>
+                  <div class="dof-focus-pin" id="dofFocusPin" style="left: 35%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted);">
+                  <span>0.5m (Macro)</span>
+                  <span>Focused Subject</span>
+                  <span>&infin; (Distant BG)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- White Balance Control -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  White Balance
+                  <button class="control-info-btn" title="Compensates for the color temperature of ambient light so whites appear truly neutral.">?</button>
+                </label>
+                <span class="control-value-badge" id="wbValBadge">5500 K</span>
+              </div>
+              <div class="chip-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 6px;">
+                <button class="chip-btn" data-wb="auto" onclick="setWhitebalancePreset('auto')">Auto</button>
+                <button class="chip-btn active" data-wb="daylight" onclick="setWhitebalancePreset('daylight')">Daylight</button>
+                <button class="chip-btn" data-wb="cloudy" onclick="setWhitebalancePreset('cloudy')">Cloudy</button>
+                <button class="chip-btn" data-wb="shade" onclick="setWhitebalancePreset('shade')">Shade</button>
+                <button class="chip-btn" data-wb="tungsten" onclick="setWhitebalancePreset('tungsten')">Tungsten</button>
+                <button class="chip-btn" data-wb="fluorescent" onclick="setWhitebalancePreset('fluorescent')">Fluor</button>
+              </div>
+              <input type="range" class="styled-range kelvin-range" id="kelvinSlider" min="2000" max="10000" step="100" value="5500" oninput="onKelvinSlider(this.value)">
+              <div class="control-hint">
+                <span style="color: #ff9b44;">Warm (2000K)</span>
+                <span>Neutral</span>
+                <span style="color: #7ab6ff;">Cool (10000K)</span>
+              </div>
+            </div>
+
+            <!-- Focus Distance -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  Focus Distance
+                  <button class="control-info-btn" title="The exact distance from lens to subject that is rendered with maximum optical sharpness.">?</button>
+                </label>
+                <span class="control-value-badge" id="focusValBadge">2.5 m</span>
+              </div>
+              <input type="range" class="styled-range" id="focusSlider" min="0.5" max="25" step="0.5" value="2.5" oninput="onFocusSlider(this.value)">
+              <div class="control-hint">
+                <span>0.5m (Close Foreground)</span>
+                <span>&infin; (Horizon)</span>
+              </div>
+            </div>
+
+            <!-- Focal Length -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">
+                  Focal Length
+                  <button class="control-info-btn" title="Controls field of view and perspective compression. Wide (24mm) expands scenes; Telephoto (200mm) zooms in and compresses background.">?</button>
+                </label>
+                <span class="control-value-badge" id="focalValBadge">50mm</span>
+              </div>
+              <div class="chip-grid">
+                <button class="chip-btn" data-focal="14" onclick="setFocalLength(14)">14mm</button>
+                <button class="chip-btn" data-focal="24" onclick="setFocalLength(24)">24mm</button>
+                <button class="chip-btn" data-focal="35" onclick="setFocalLength(35)">35mm</button>
+                <button class="chip-btn active" data-focal="50" onclick="setFocalLength(50)">50mm</button>
+                <button class="chip-btn" data-focal="85" onclick="setFocalLength(85)">85mm</button>
+                <button class="chip-btn" data-focal="135" onclick="setFocalLength(135)">135mm</button>
+                <button class="chip-btn" data-focal="200" onclick="setFocalLength(200)">200mm</button>
+                <button class="chip-btn" data-focal="300" onclick="setFocalLength(300)">300mm</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Column: Viewfinder Canvas & Controls -->
+          <div class="viewfinder-wrapper">
+            <div class="camera-screen-housing">
+              <!-- Top HUD -->
+              <div class="viewfinder-top-hud">
+                <div class="camera-hud-badge">
+                  <span class="hud-rec-dot"></span>
+                  <span>LIVE VIEW</span>
+                </div>
+                <div class="camera-hud-badge">
+                  <span id="currentSceneBadge">Portrait Daylight</span>
+                </div>
+                <div class="camera-hud-badge">
+                  <span id="hudBattery">BAT 94%</span>
+                  <span>|</span>
+                  <span id="hudCard">SD 128GB</span>
+                </div>
+              </div>
+
+              <!-- Main Simulation Canvas -->
+              <div class="canvas-viewport-box" id="viewportBox">
+                <canvas id="simCanvas" width="600" height="400"></canvas>
+                
+                <!-- Rule of Thirds Grid Overlay -->
+                <div class="grid-overlay" id="simGridOverlay">
+                  <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                  <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                  <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+
+                <!-- Center Focus Point Box -->
+                <div class="center-focus-target" id="focusPointTarget"></div>
+
+                <!-- Camera Shake Warning Banner -->
+                <div class="camera-shake-banner" id="shakeWarningBanner">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 11v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+                  <span>Camera Shake Warning! Shutter speed too slow for handheld.</span>
+                </div>
+
+                <!-- Compare Mode Badges -->
+                <div class="compare-container" id="compareContainer">
+                  <span class="compare-badge-left">CURRENT SETTINGS</span>
+                  <span class="compare-badge-right">REFERENCE OPTIMAL</span>
+                </div>
+              </div>
+
+              <!-- Bottom HUD -->
+              <div class="viewfinder-bottom-hud">
+                <div class="hud-exposure-summary">
+                  <div class="hud-param">ISO <span id="hudIso">400</span></div>
+                  <div class="hud-param">SEC <span id="hudShutter">1/125</span></div>
+                  <div class="hud-param">F <span id="hudAperture">f/4.0</span></div>
+                  <div class="hud-param">EV <span id="hudEv">+0.0</span></div>
+                </div>
+                <div class="viewfinder-tools">
+                  <button class="vf-tool-btn" id="btnToggleGrid" onclick="toggleSimGrid()">
+                    <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+                    Grid
+                  </button>
+                  <button class="vf-tool-btn" id="btnToggleClipping" onclick="toggleClippingWarning()">
+                    <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z"/></svg>
+                    Zebra Clip
+                  </button>
+                  <button class="vf-tool-btn" id="btnToggleCompare" onclick="toggleCompareMode()">
+                    <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    Compare
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shutter Action Bar -->
+            <div class="action-bar">
+              <div>
+                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); display: block;">Shutter Trigger</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Press [Spacebar] or click button to capture photo</span>
+              </div>
+              <button class="shutter-btn-main" onclick="takePhotoSnapshot()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                CAPTURE PHOTO
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Telemetry & Scenes -->
+          <div class="panel-card">
+            <div class="panel-title">
+              <span>Telemetry & Scene</span>
+              <span class="badge badge-blue">Live Analysis</span>
+            </div>
+
+            <!-- Live Luminance Histogram -->
+            <div class="histogram-card">
+              <div class="histogram-header">
+                <span style="font-weight: 600;">Luminance Histogram</span>
+                <span id="histogramClipState" style="color: var(--accent-green); font-size: 0.7rem;">Balanced</span>
+              </div>
+              <canvas id="histogramCanvas" width="240" height="75"></canvas>
+              <div class="histogram-legend">
+                <span>Shadows (0)</span>
+                <span>Midtones (128)</span>
+                <span>Highlights (255)</span>
+              </div>
+            </div>
+
+            <!-- Exposure Meter Gauge -->
+            <div class="exposure-meter-card">
+              <div class="control-header">
+                <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-primary);">Exposure Meter (EV)</span>
+                <span id="evNumericBadge" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--accent-green);">0.0 EV</span>
+              </div>
+              <div class="meter-display">
+                <div class="meter-ticks">
+                  <div class="meter-tick major"></div>
+                  <div class="meter-tick"></div>
+                  <div class="meter-tick major"></div>
+                  <div class="meter-tick"></div>
+                  <div class="meter-tick center"></div>
+                  <div class="meter-tick"></div>
+                  <div class="meter-tick major"></div>
+                  <div class="meter-tick"></div>
+                  <div class="meter-tick major"></div>
+                </div>
+                <div class="meter-needle" id="meterNeedle" style="left: 50%;"></div>
+                <div class="meter-labels">
+                  <span>-3</span>
+                  <span>-2</span>
+                  <span>-1</span>
+                  <span style="color: var(--accent-gold); font-weight: 700;">0</span>
+                  <span>+1</span>
+                  <span>+2</span>
+                  <span>+3</span>
+                </div>
+              </div>
+              <div class="meter-readout-row">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Status:</span>
+                <span class="meter-status-tag badge-green" id="meterStatusTag">OPTIMAL EXPOSURE</span>
+              </div>
+            </div>
+
+            <!-- Scene Selector Library -->
+            <div>
+              <div class="control-header" style="margin-bottom: 8px;">
+                <label class="control-label">Scene Environment (12)</label>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Procedural Canvas</span>
+              </div>
+              <div class="scene-grid-container" id="sceneThumbGrid">
+                <!-- 12 Scene thumbnail cards will be generated by JS -->
+              </div>
+            </div>
+
+            <!-- Quick Keyboard Shortcuts Helper -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; font-size: 0.72rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
+              <span style="font-weight: 600; color: var(--text-secondary);">Hotkeys:</span>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Change Scene:</span>
+                <code style="color: var(--accent-gold);">Left / Right Arrows</code>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Shutter Speed:</span>
+                <code style="color: var(--accent-blue);">&lt; / &gt; or , / .</code>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Aperture:</span>
+                <code style="color: var(--accent-gold);">[ / ] keys</code>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Take Photo:</span>
+                <code style="color: var(--text-primary);">Spacebar</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: 3D COMPOSITION LAB -->
+      <section id="section-composition" class="section-view">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+          <div>
+            <h2 class="section-header">3D Composition & Staging Studio</h2>
+            <p class="section-subhead" style="margin-bottom: 0;">Position a virtual camera in 3D studio space, manipulate focal lengths, and master 12 timeless visual composition techniques.</p>
+          </div>
+          <button class="btn btn-outline" style="padding: 7px 14px; font-size: 0.8rem;" onclick="resetThreeCamera()">
+            Reset Camera View
+          </button>
+        </div>
+
+        <div class="composition-workspace">
+          <!-- Left: 3D Studio Canvas -->
+          <div>
+            <div class="three-viewport-card" id="threeViewportCard">
+              <canvas id="threeCanvas"></canvas>
+              
+              <div class="three-top-bar">
+                <span class="badge badge-gold">3D Studio Orbit (Click & Drag to Rotate, Scroll to Zoom)</span>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-quick-action" style="padding: 4px 8px; font-size: 0.72rem;" onclick="toggleStudioLighting()">Toggle Studio Light</button>
+                </div>
+              </div>
+
+              <div class="three-hud-controls">
+                <span>Subject: Mannequin Model</span>
+                <span>|</span>
+                <span>Environment: Studio Cyc & Window</span>
+                <span>|</span>
+                <span id="threeFovIndicator">FOV: 40&deg; (50mm)</span>
+              </div>
+            </div>
+
+            <!-- 12 Composition Techniques Cards Grid -->
+            <div class="techniques-panel-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.15rem; color: var(--text-primary); font-family: 'Playfair Display', serif;">12 Essential Composition Techniques</h3>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Click any technique to stage the virtual camera automatically</span>
+              </div>
+              
+              <div class="techniques-grid" id="techniquesGrid">
+                <!-- 12 techniques generated by JS -->
+              </div>
+
+              <!-- Technique In-depth Detail Card -->
+              <div class="technique-detail-card" id="techDetailCard">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                  <div>
+                    <span class="badge badge-gold" id="detailTechCategory">Framework</span>
+                    <h4 id="detailTechTitle" style="font-size: 1.2rem; color: var(--text-primary); margin-top: 4px;">Rule of Thirds</h4>
+                  </div>
+                  <button class="btn btn-gold" style="padding: 6px 14px; font-size: 0.78rem;" onclick="applyActiveTechniqueCamera()">Stage Camera</button>
+                </div>
+                <p id="detailTechDesc" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;"></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-sm); font-size: 0.78rem;">
+                  <div>
+                    <strong style="color: var(--accent-gold); display: block; margin-bottom: 2px;">When to Use:</strong>
+                    <span id="detailTechWhen" style="color: var(--text-primary);"></span>
+                  </div>
+                  <div>
+                    <strong style="color: var(--accent-blue); display: block; margin-bottom: 2px;">Pro Tip:</strong>
+                    <span id="detailTechTip" style="color: var(--text-primary);"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Camera Viewfinder & Virtual Camera Controls -->
+          <div class="panel-card">
+            <div class="panel-title">
+              <span>Virtual Camera Viewfinder</span>
+              <span class="badge badge-green">Lens Projection</span>
+            </div>
+
+            <!-- Secondary 2D Viewfinder Screen -->
+            <div class="viewfinder-preview-card">
+              <div class="vf-projection-housing">
+                <canvas id="cameraViewfinderCanvas" width="360" height="240"></canvas>
+                
+                <!-- SVG Guide Overlay Layer -->
+                <svg id="compositionGuideSvg" viewBox="0 0 360 240"></svg>
+              </div>
+
+              <!-- Guide Overlay Buttons -->
+              <div>
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 6px; font-weight: 600;">COMPOSITION GUIDES:</span>
+                <div class="guide-toggles-bar">
+                  <button class="guide-btn active" data-guide="thirds" onclick="toggleCompGuide('thirds')">Rule of 3rds</button>
+                  <button class="guide-btn" data-guide="golden" onclick="toggleCompGuide('golden')">Golden Spiral</button>
+                  <button class="guide-btn" data-guide="center" onclick="toggleCompGuide('center')">Center Cross</button>
+                  <button class="guide-btn" data-guide="diagonal" onclick="toggleCompGuide('diagonal')">Diagonals</button>
+                  <button class="guide-btn" data-guide="frame" onclick="toggleCompGuide('frame')">Framing</button>
+                  <button class="guide-btn" data-guide="leading" onclick="toggleCompGuide('leading')">Lead Lines</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Virtual Camera Rig Controls -->
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">Camera Height (Angle)</label>
+                <span class="control-value-badge" id="camHeightBadge">1.5m (Eye Level)</span>
+              </div>
+              <input type="range" class="styled-range" id="camHeightSlider" min="0.3" max="3.2" step="0.1" value="1.5" oninput="onCamHeightSlider(this.value)">
+              <div class="control-hint">
+                <span>0.3m (Low Angle)</span>
+                <span>1.5m (Eye)</span>
+                <span>3.2m (High Angle)</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">Camera Distance</label>
+                <span class="control-value-badge" id="camDistBadge">3.0m</span>
+              </div>
+              <input type="range" class="styled-range" id="camDistSlider" min="1.0" max="6.5" step="0.1" value="3.0" oninput="onCamDistSlider(this.value)">
+              <div class="control-hint">
+                <span>1.0m (Close-Up)</span>
+                <span>3.0m (Medium)</span>
+                <span>6.5m (Wide Shot)</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">Horizontal Angle</label>
+                <span class="control-value-badge" id="camAngleBadge">0&deg; (Frontal)</span>
+              </div>
+              <input type="range" class="styled-range" id="camAngleSlider" min="-90" max="90" step="5" value="0" oninput="onCamAngleSlider(this.value)">
+              <div class="control-hint">
+                <span>-90&deg; (Profile L)</span>
+                <span>0&deg;</span>
+                <span>+90&deg; (Profile R)</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">Camera Tilt Pitch</label>
+                <span class="control-value-badge" id="camTiltBadge">0&deg; (Level)</span>
+              </div>
+              <input type="range" class="styled-range" id="camTiltSlider" min="-30" max="30" step="2" value="0" oninput="onCamTiltSlider(this.value)">
+              <div class="control-hint">
+                <span>-30&deg; (Tilt Down)</span>
+                <span>0&deg;</span>
+                <span>+30&deg; (Tilt Up)</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-header">
+                <label class="control-label">Lens Focal Length</label>
+                <span class="control-value-badge" id="compFocalBadge">50mm</span>
+              </div>
+              <div class="chip-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <button class="chip-btn" data-compfocal="24" onclick="setCompFocal(24)">24mm</button>
+                <button class="chip-btn" data-compfocal="35" onclick="setCompFocal(35)">35mm</button>
+                <button class="chip-btn active" data-compfocal="50" onclick="setCompFocal(50)">50mm</button>
+                <button class="chip-btn" data-compfocal="85" onclick="setCompFocal(85)">85mm</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: PRACTICE CHALLENGES -->
+      <section id="section-challenges" class="section-view">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+          <div>
+            <h2 class="section-header">Photography Practice Challenges</h2>
+            <p class="section-subhead" style="margin-bottom: 0;">Solve 10 real-world photographic problems. Adjust exposure and optics to achieve target success criteria.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent-gold);">
+            <span>COMPLETED:</span>
+            <strong id="challengesSummaryStars">0 / 10 Completed (0 &#9733;)</strong>
+          </div>
+        </div>
+
+        <div class="challenges-layout">
+          <!-- Challenges Navigation List -->
+          <div class="challenges-list-card" id="challengesNavList">
+            <!-- 10 challenges items generated by JS -->
+          </div>
+
+          <!-- Active Challenge Workspace -->
+          <div class="challenge-workspace-card">
+            <div class="challenge-header-box">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="badge badge-gold" id="challengeDifficultyBadge">BEGINNER &bull; MISSION 1</span>
+                <span class="challenge-stars" id="challengeActiveStars">&#9734;&#9734;&#9734;</span>
+              </div>
+              <h3 id="activeChallengeTitle" style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--text-primary); margin-bottom: 6px;">Freeze the Action</h3>
+              <p id="activeChallengeSceneDesc" style="color: var(--text-secondary); font-size: 0.95rem;"></p>
+            </div>
+
+            <!-- Target Goal Card -->
+            <div class="challenge-goal-card">
+              <h4>Mission Objective</h4>
+              <p id="activeChallengeGoalText">A sports car is speeding along the highway. Capture the vehicle with zero motion blur so every contour is pin-sharp.</p>
+              
+              <div class="challenge-criteria-list" id="activeChallengeCriteriaList">
+                <!-- Checklist items injected by JS -->
+              </div>
+            </div>
+
+            <!-- Integrated Mini Camera Controls for the Challenge -->
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: start;">
+              <!-- Mini Viewfinder -->
+              <div class="camera-screen-housing" style="aspect-ratio: 3 / 2;">
+                <canvas id="challengeCanvas" width="600" height="400" style="width: 100%; height: 100%; display: block;"></canvas>
+              </div>
+
+              <!-- Challenge Controls -->
+              <div style="display: flex; flex-direction: column; gap: 14px; background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">Challenge Controls</span>
+                  <span id="challengeEvIndicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--accent-green);">EV 0.0</span>
+                </div>
+
+                <!-- Shutter Speed Slider -->
+                <div class="control-group">
+                  <div class="control-header">
+                    <span style="font-size: 0.78rem; color: var(--text-primary); font-weight: 600;">Shutter Speed</span>
+                    <span class="control-value-badge" id="chShutterBadge">1/125s</span>
+                  </div>
+                  <input type="range" class="styled-range" id="chShutterSlider" min="0" max="16" step="1" value="7" oninput="onChallengeShutter(this.value)">
+                </div>
+
+                <!-- Aperture Chips -->
+                <div class="control-group">
+                  <div class="control-header">
+                    <span style="font-size: 0.78rem; color: var(--text-primary); font-weight: 600;">Aperture (f-stop)</span>
+                    <span class="control-value-badge" id="chApertureBadge">f/4.0</span>
+                  </div>
+                  <div class="chip-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <button class="chip-btn" data-chaperture="1.4" onclick="setChallengeAperture(1.4)">f/1.4</button>
+                    <button class="chip-btn" data-chaperture="2.8" onclick="setChallengeAperture(2.8)">f/2.8</button>
+                    <button class="chip-btn active" data-chaperture="4" onclick="setChallengeAperture(4)">f/4.0</button>
+                    <button class="chip-btn" data-chaperture="8" onclick="setChallengeAperture(8)">f/8.0</button>
+                    <button class="chip-btn" data-chaperture="16" onclick="setChallengeAperture(16)">f/16</button>
+                  </div>
+                </div>
+
+                <!-- ISO Chips -->
+                <div class="control-group">
+                  <div class="control-header">
+                    <span style="font-size: 0.78rem; color: var(--text-primary); font-weight: 600;">ISO Sensitivity</span>
+                    <span class="control-value-badge" id="chIsoBadge">ISO 400</span>
+                  </div>
+                  <div class="chip-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <button class="chip-btn" data-chiso="100" onclick="setChallengeIso(100)">100</button>
+                    <button class="chip-btn active" data-chiso="400" onclick="setChallengeIso(400)">400</button>
+                    <button class="chip-btn" data-chiso="1600" onclick="setChallengeIso(1600)">1600</button>
+                    <button class="chip-btn" data-chiso="6400" onclick="setChallengeIso(6400)">6400</button>
+                  </div>
+                </div>
+
+                <!-- White Balance or Extra for Specific Challenges -->
+                <div class="control-group" id="chExtraRow">
+                  <div class="control-header">
+                    <span style="font-size: 0.78rem; color: var(--text-primary); font-weight: 600;" id="chExtraLabel">White Balance Preset</span>
+                    <span class="control-value-badge" id="chExtraValBadge">Daylight</span>
+                  </div>
+                  <div class="chip-grid" id="chExtraChips" style="grid-template-columns: repeat(3, 1fr);">
+                    <button class="chip-btn active" data-chwb="daylight" onclick="setChallengeWB('daylight')">Daylight</button>
+                    <button class="chip-btn" data-chwb="tungsten" onclick="setChallengeWB('tungsten')">Tungsten</button>
+                    <button class="chip-btn" data-chwb="shade" onclick="setChallengeWB('shade')">Shade</button>
+                  </div>
+                </div>
+
+                <!-- Evaluation Button -->
+                <button class="btn btn-gold" style="width: 100%; margin-top: 8px; padding: 12px;" onclick="evaluateActiveChallenge()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  EVALUATE SHOT &amp; SUBMIT
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: LENS EXPLORER -->
+      <section id="section-lenses" class="section-view">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+          <div>
+            <h2 class="section-header">Optical Lens Explorer</h2>
+            <p class="section-subhead" style="margin-bottom: 0;">Compare how focal lengths alter perspective distortion, angle of view, and spatial background compression.</p>
+          </div>
+          <!-- Scene Selector for Lens Testing -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Test Scene:</span>
+            <select id="lensTestSceneSelect" onchange="onLensTestSceneChange(this.value)" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; outline: none;">
+              <option value="portrait_distant">Portrait Overlook (Compression)</option>
+              <option value="mountain_landscape">Alpine Mountains (Landscape)</option>
+              <option value="street_photo">Urban Street (Architecture)</option>
+              <option value="wildlife_birds">Wildlife Bird (Telephoto)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="lens-explorer-layout">
+          <!-- Dual Comparison Grid -->
+          <div class="lens-dual-container">
+            <!-- Lens A Column -->
+            <div class="lens-view-box">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-gold">Lens A (Wide / Standard)</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-gold);" id="lensAName">24mm F/2.8</span>
+              </div>
+              
+              <div class="lens-canvas-frame">
+                <canvas id="lensACanvas" width="600" height="400"></canvas>
+              </div>
+
+              <!-- Selector Chips for Lens A -->
+              <div class="chip-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <button class="chip-btn" data-lensa="14" onclick="setLensA(14)">14mm</button>
+                <button class="chip-btn active" data-lensa="24" onclick="setLensA(24)">24mm</button>
+                <button class="chip-btn" data-lensa="35" onclick="setLensA(35)">35mm</button>
+                <button class="chip-btn" data-lensa="50" onclick="setLensA(50)">50mm</button>
+              </div>
+
+              <!-- Technical Specifications Table -->
+              <table class="lens-specs-table">
+                <tr>
+                  <td>Field of View (Diagonal):</td>
+                  <td id="lensAFov">84.1&deg; (Wide Angle)</td>
+                </tr>
+                <tr>
+                  <td>Perspective Distortion:</td>
+                  <td id="lensADistort">Barrel (+8.2%)</td>
+                </tr>
+                <tr>
+                  <td>Background Compression:</td>
+                  <td id="lensACompress">Expansive / Distant</td>
+                </tr>
+                <tr>
+                  <td>Depth of Field @ f/2.8:</td>
+                  <td id="lensADof">Deep (1.2m - &infin;)</td>
+                </tr>
+                <tr>
+                  <td>Recommended Genres:</td>
+                  <td id="lensAGenres" style="color: var(--accent-blue);">Landscape, Architecture, Vlogs</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Lens B Column -->
+            <div class="lens-view-box">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-blue">Lens B (Telephoto / Portrait)</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-blue);" id="lensBName">135mm F/2.8</span>
+              </div>
+              
+              <div class="lens-canvas-frame">
+                <canvas id="lensBCanvas" width="600" height="400"></canvas>
+              </div>
+
+              <!-- Selector Chips for Lens B -->
+              <div class="chip-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <button class="chip-btn" data-lensb="50" onclick="setLensB(50)">50mm</button>
+                <button class="chip-btn" data-lensb="85" onclick="setLensB(85)">85mm</button>
+                <button class="chip-btn active" data-lensb="135" onclick="setLensB(135)">135mm</button>
+                <button class="chip-btn" data-lensb="200" onclick="setLensB(200)">200mm</button>
+              </div>
+
+              <!-- Technical Specifications Table -->
+              <table class="lens-specs-table">
+                <tr>
+                  <td>Field of View (Diagonal):</td>
+                  <td id="lensBFov">18.2&deg; (Telephoto)</td>
+                </tr>
+                <tr>
+                  <td>Perspective Distortion:</td>
+                  <td id="lensBDistort">Flat / Pincushion (-1.1%)</td>
+                </tr>
+                <tr>
+                  <td>Background Compression:</td>
+                  <td id="lensBCompress">High / Magnified BG</td>
+                </tr>
+                <tr>
+                  <td>Depth of Field @ f/2.8:</td>
+                  <td id="lensBDof">Razor-Thin (0.15m)</td>
+                </tr>
+                <tr>
+                  <td>Recommended Genres:</td>
+                  <td id="lensBGenres" style="color: var(--accent-gold);">Portraits, Sports, Concerts</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Optical Compression Educational Visualizer -->
+          <div class="compression-explainer-card">
+            <div>
+              <span class="badge badge-gold" style="margin-bottom: 8px;">Optical Physics Explained</span>
+              <h3 style="font-size: 1.4rem; color: var(--text-primary); margin-bottom: 10px; font-family: 'Playfair Display', serif;">What is Lens Compression?</h3>
+              <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; margin-bottom: 16px;">
+                Focal length does not merely "magnify" the picture; it fundamentally changes the apparent spatial relationship between foreground subjects and background scenery.
+              </p>
+              <ul style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; padding-left: 20px;">
+                <li><strong style="color: var(--text-primary);">Wide Angle (14mm - 24mm):</strong> Stretches distance, making background mountains or cityscapes appear tiny and leagues away.</li>
+                <li><strong style="color: var(--text-primary);">Standard (50mm):</strong> Closely replicates normal human eye perception and true-to-life proportions without distortion.</li>
+                <li><strong style="color: var(--text-primary);">Telephoto (85mm - 200mm):</strong> Pulls distant background elements forward, making far-off hills look like they are right behind your portrait subject!</li>
+              </ul>
+            </div>
+            <div style="background: var(--bg-elevated); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); text-align: center;">
+              <svg viewBox="0 0 280 180" width="100%" height="160">
+                <!-- Visual Angle Comparison Cone -->
+                <path d="M 140 160 L 20 20 L 260 20 Z" fill="rgba(74, 158, 255, 0.12)" stroke="rgba(74, 158, 255, 0.4)" stroke-width="1.5"></path>
+                <path d="M 140 160 L 100 20 L 180 20 Z" fill="rgba(232, 160, 48, 0.2)" stroke="var(--accent-gold)" stroke-width="2"></path>
+                
+                <!-- Camera icon at bottom -->
+                <circle cx="140" cy="160" r="10" fill="#e8a030"></circle>
+                <text x="140" y="176" fill="#f0f0f8" font-size="10" text-anchor="middle" font-weight="600">Camera Lens</text>
+
+                <text x="50" y="45" fill="#4a9eff" font-size="11" font-weight="600">24mm (84&deg; FOV)</text>
+                <text x="140" y="60" fill="#e8a030" font-size="11" font-weight="700" text-anchor="middle">85mm (28&deg; FOV)</text>
+                <line x1="20" y1="20" x2="260" y2="20" stroke="rgba(255,255,255,0.2)" stroke-dasharray="3"></line>
+                <text x="140" y="14" fill="#9898b8" font-size="10" text-anchor="middle">Distant Background Horizon</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: MY PROGRESS -->
+      <section id="section-progress" class="section-view">
+        <h2 class="section-header">Photographer Progress &amp; Mastery</h2>
+        <p class="section-subhead">Track your optical learning journey, completed challenge achievements, and unlocked badges.</p>
+
+        <!-- Progress Overview Banner -->
+        <div class="progress-hero-card">
+          <div class="rank-trophy-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+              <path d="M4 22h16"></path>
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+            </svg>
+          </div>
+
+          <div class="progress-meta">
+            <span class="badge badge-gold" id="userRankPill">RANK: ENTHUSIAST PHOTOGRAPHER</span>
+            <h3 id="userMasteryTitle">Level 2: Optical Apprentice</h3>
+            <p id="xpCounterText">350 / 800 XP to next tier</p>
+            <div class="xp-bar-track" style="height: 10px;">
+              <div class="xp-bar-fill" id="dashboardXpBar" style="width: 44%;"></div>
+            </div>
+          </div>
+
+          <div class="progress-stats-trio">
+            <div class="progress-stat-chip">
+              <strong id="statPhotosTaken">0</strong>
+              <span>Shots Captured</span>
+            </div>
+            <div class="progress-stat-chip">
+              <strong id="statCompletedChallenges">0 / 10</strong>
+              <span>Missions Passed</span>
+            </div>
+            <div class="progress-stat-chip">
+              <strong id="statTotalTime">00:00:00</strong>
+              <span>Practice Time</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievement Badges -->
+        <div class="badges-section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.25rem; font-family: 'Playfair Display', serif;">Photographic Achievement Badges</h3>
+            <span style="font-size: 0.8rem; color: var(--accent-gold);" id="badgesUnlockedCount">0 of 8 Unlocked</span>
+          </div>
+
+          <div class="badges-grid" id="badgesContainer">
+            <!-- 8 Badges injected by JS -->
+          </div>
+        </div>
+
+        <!-- Concepts Mastered Checklist -->
+        <div class="concepts-checklist-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.2rem; font-family: 'Playfair Display', serif;">Core Photographic Competencies</h3>
+            <span style="font-size: 0.8rem; color: var(--accent-green);" id="conceptsMasteredCount">3 of 8 Mastered</span>
+          </div>
+          <div class="concepts-grid" id="conceptsGrid">
+            <!-- Concepts items injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: CHEAT SHEETS -->
+      <section id="section-cheatsheets" class="section-view">
+        <div class="cheatsheets-toolbar">
+          <div>
+            <h2 class="section-header">Field Reference Cheat Sheets</h2>
+            <p class="section-subhead" style="margin-bottom: 0;">Printable quick-reference visual cards for exposure settings, focal length selection, and shooting scenarios.</p>
+          </div>
+          <button class="btn btn-gold" onclick="window.print()">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print Reference Guide
+          </button>
+        </div>
+
+        <div class="cheatsheets-grid">
+          <!-- Card 1: Exposure Triangle -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"></polygon></svg>
+              <h3>1. The Exposure Triangle</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border); color: var(--accent-gold);">
+                  <th style="text-align: left; padding: 6px;">Pillar</th>
+                  <th style="text-align: left; padding: 6px;">More Light &larr;</th>
+                  <th style="text-align: left; padding: 6px;">&rarr; Less Light</th>
+                  <th style="text-align: left; padding: 6px;">Creative Side-Effect</th>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="padding: 8px 6px; font-weight: 700;">Aperture</td>
+                  <td>f/1.4, f/2.0 (Wide)</td>
+                  <td>f/16, f/22 (Narrow)</td>
+                  <td>Shallow DoF &harr; Deep Sharpness</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="padding: 8px 6px; font-weight: 700;">Shutter</td>
+                  <td>1/2s, 2s (Slow)</td>
+                  <td>1/1000s, 1/4000s (Fast)</td>
+                  <td>Motion Blur &harr; Frozen Action</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 6px; font-weight: 700;">ISO</td>
+                  <td>6400, 12800 (High)</td>
+                  <td>100, 200 (Low)</td>
+                  <td>Digital Noise &harr; Clean Signal</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 2: Shutter Speed Guide -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <h3>2. Shutter Speed Quick Guide</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue); width: 28%; padding: 6px;">1/4000 - 1/2000s</td>
+                  <td>Hummingbirds, water droplet impacts, racing cars, supersonic action.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue); padding: 6px;">1/1000 - 1/500s</td>
+                  <td>Sports athletes running, birds in flight, playful dogs, moving cyclists.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue); padding: 6px;">1/250 - 1/125s</td>
+                  <td>Standard everyday handheld portraiture, street walking, casual candids.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">1/60s</td>
+                  <td>Handheld threshold limit! Slower speeds require tripod or optical stabilization.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">1/4s - 2s</td>
+                  <td>Silky cascading waterfalls, ocean tide surf blur, intentional panning streaks.</td>
+                </tr>
+                <tr>
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green); padding: 6px;">5s - 30s</td>
+                  <td>Highway night car light trails, glassy city reflections, Milky Way astrophotography.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 3: Aperture Guide -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+              <h3>3. Aperture (f-stop) Field Scale</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); width: 24%; padding: 6px;">f/1.4 - f/2.0</td>
+                  <td>Dreamy buttery bokeh portraits, extreme subject isolation, dim indoor light.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">f/2.8 - f/4.0</td>
+                  <td>Environmental portraits, street scenes, group portraits with sharp eyes.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">f/8.0 - f/11</td>
+                  <td>The lens "Sweet Spot" for maximum edge-to-edge optical sharpness. Landscapes.</td>
+                </tr>
+                <tr>
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">f/16 - f/22</td>
+                  <td>Maximum depth of field, sunburst star effects on point light sources. (Beware diffraction).</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 4: White Balance Spectrum -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line></svg>
+              <h3>4. White Balance &amp; Kelvin Scale</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ff8b2e; width: 25%; padding: 6px;">2000K - 2500K</td>
+                  <td>Candlelight, open fireplace, sunrise red ember glow.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ffbe76; padding: 6px;">3000K - 3200K</td>
+                  <td>Tungsten household lamps, cozy incandescent interior lighting.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #dff9fb; padding: 6px;">5200K - 5500K</td>
+                  <td>Standard direct midday sunlight, studio electronic strobes. Neutral baseline.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #70a1ff; padding: 6px;">6500K</td>
+                  <td>Overcast cloudy sky (adds warmth to counteract cooler gray sky).</td>
+                </tr>
+                <tr>
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #1e90ff; padding: 6px;">7500K - 8500K</td>
+                  <td>Deep open shadow on a clear day, dusk blue hour.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 5: Focal Length Selection -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle></svg>
+              <h3>5. Focal Length Selection Matrix</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); width: 25%; padding: 6px;">14mm - 24mm</td>
+                  <td>Ultra-wide. Sweeping alpine vistas, architecture interiors, dynamic astrophotography.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">35mm - 50mm</td>
+                  <td>Standard / Documentary. "The Human Perspective". Street photography, photojournalism.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">85mm - 135mm</td>
+                  <td>Short Telephoto. The gold standard for flattering headshots with zero facial distortion.</td>
+                </tr>
+                <tr>
+                  <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-gold); padding: 6px;">200mm - 400mm+</td>
+                  <td>Super Telephoto. Shy wildlife, distant sports athletes, extreme landscape compression.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 6: Pro Scenario Recipes -->
+          <div class="cheat-card">
+            <div class="cheat-card-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <h3>6. Field Shooting Recipes</h3>
+            </div>
+            <div class="cheat-diagram-box">
+              <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-weight: 700; color: var(--text-primary); width: 30%; padding: 6px;">Golden Hour Portrait</td>
+                  <td>f/1.8 - f/2.8 &bull; 1/250s &bull; ISO 100 &bull; WB: Shade or 6500K</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-weight: 700; color: var(--text-primary); padding: 6px;">Sharp Mountain Vista</td>
+                  <td>f/8.0 - f/11 &bull; 1/125s &bull; ISO 100 &bull; Tripod &bull; Focus at 1/3 depth</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-weight: 700; color: var(--text-primary); padding: 6px;">Silky Waterfall Flow</td>
+                  <td>f/11 - f/16 &bull; 1/2s - 2s &bull; ISO 100 &bull; ND Filter &bull; Tripod</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <td style="font-weight: 700; color: var(--text-primary); padding: 6px;">Fast Action Sports</td>
+                  <td>f/2.8 - f/4.0 &bull; 1/1000s+ &bull; Auto ISO (100-3200) &bull; Continuous AF</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 700; color: var(--text-primary); padding: 6px;">Milky Way Astro</td>
+                  <td>f/1.4 - f/2.8 &bull; 15s - 20s (500 Rule) &bull; ISO 3200 - 6400 &bull; Manual Focus &infin;</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Challenge Evaluation Result Modal -->
+  <div class="modal-backdrop" id="evaluationModal">
+    <div class="modal-dialog">
+      <div class="modal-stars-row" id="modalStarsOutput">&#9733;&#9733;&#9733;</div>
+      <h3 id="modalResultHeading">Perfect Shot!</h3>
+      <p id="modalResultSubheading">You successfully balanced exposure and nailed the target optical settings.</p>
+
+      <div class="modal-breakdown-box" id="modalBreakdownList">
+        <!-- Diagnostic points injected by JS -->
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeEvaluationModal()">Try Again</button>
+        <button class="btn btn-gold" id="btnNextChallengeModal" onclick="advanceNextChallenge()">Next Mission &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snapshot Preview Modal -->
+  <div class="modal-backdrop" id="snapshotModal">
+    <div class="modal-dialog" style="max-width: 640px;">
+      <h3 style="margin-bottom: 12px;">Photo Captured!</h3>
+      <div style="background: #000; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 14px;">
+        <canvas id="snapshotModalCanvas" width="600" height="400" style="width: 100%; height: auto; display: block;"></canvas>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-gold); margin-bottom: 18px;" id="snapshotMetadataRow">
+        <!-- Meta info -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeSnapshotModal()">Close</button>
+        <button class="btn btn-gold" onclick="downloadSnapshotImage()">Download Image</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile / Small-Screen Warning Modal -->
+  <div id="mobileWarningOverlay" style="display:none; position:fixed; inset:0; z-index:9999;
+       background:rgba(0,0,0,0.88); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+       align-items:center; justify-content:center; padding:24px;">
+    <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:16px;
+         max-width:420px; width:100%; padding:36px 28px; text-align:center; position:relative;
+         box-shadow:0 24px 64px rgba(0,0,0,0.8); animation:mobileWarnPop 0.35s cubic-bezier(0.16,1,0.3,1);">
+
+      <!-- Icon -->
+      <div style="width:72px; height:72px; border-radius:50%; margin:0 auto 20px;
+           background:radial-gradient(circle, rgba(232,160,48,0.15) 0%, transparent 70%);
+           border:2px solid var(--accent-gold); display:flex; align-items:center; justify-content:center;
+           box-shadow:0 0 24px rgba(232,160,48,0.2);">
+        <svg viewBox="0 0 24 24" width="34" height="34" stroke="var(--accent-gold)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+      </div>
+
+      <!-- Heading -->
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.55rem; color:var(--text-primary);
+           margin-bottom:10px; line-height:1.2;">Best Viewed on a Larger Screen</h2>
+
+      <!-- Sub-text -->
+      <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.6; margin-bottom:6px;">
+        PhotoTour is a full-fidelity photography simulator with a multi-panel workspace — live viewfinder,
+        histogram, 3D composition lab, and more.
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5; margin-bottom:28px;">
+        For the best experience, open it on a <strong style="color:var(--text-secondary);">laptop or desktop</strong> with a screen width of at least 1024&nbsp;px.
+      </p>
+
+      <!-- Device chips row -->
+      <div style="display:flex; justify-content:center; gap:12px; margin-bottom:28px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:7px; background:var(--bg-card); border:1px solid var(--border);
+             padding:8px 14px; border-radius:8px; font-size:0.8rem; color:var(--text-secondary);">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--accent-green)" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Desktop
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; background:var(--bg-card); border:1px solid var(--border);
+             padding:8px 14px; border-radius:8px; font-size:0.8rem; color:var(--text-secondary);">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--accent-green)" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+          Laptop
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; background:var(--bg-card); border:1px solid rgba(255,74,74,0.3);
+             padding:8px 14px; border-radius:8px; font-size:0.8rem; color:var(--text-muted);">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--accent-red)" stroke-width="2" fill="none"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          Mobile (limited)
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button onclick="document.getElementById('mobileWarningOverlay').style.display='none'"
+          style="background:linear-gradient(135deg,var(--accent-gold),#cb861c); color:#000; border:none;
+          border-radius:8px; padding:13px 20px; font-size:0.92rem; font-weight:700; cursor:pointer;
+          font-family:inherit; letter-spacing:0.01em;">
+          Continue Anyway
+        </button>
+        <button onclick="document.getElementById('mobileWarningOverlay').style.display='none'; localStorage.setItem('mobileWarningDismissed','1')"
+          style="background:transparent; color:var(--text-muted); border:1px solid var(--border);
+          border-radius:8px; padding:11px 20px; font-size:0.82rem; cursor:pointer; font-family:inherit;">
+          Don't show again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
